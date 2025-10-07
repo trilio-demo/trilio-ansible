@@ -67,6 +67,12 @@
   when: trilio_kubernetes_create_backup | bool
 
 
+- name: Optional Delay Before Restore
+  ansible.builtin.include_tasks: trilio_kubernetes_delay.yaml
+  when: trilio_kubernetes_delay_enabled | default(false) | bool
+  tags: ['delay']
+
+
 - name: Trilio for Kubernetes Perform Restore
   ansible.builtin.include_tasks: trilio_kubernetes_create_restore.yaml
   tags: ['never', 'restore']
@@ -98,8 +104,3 @@
     - trilio_kubernetes_smoketest | bool
 
 
-- name: Optional Delay Before Workflow Steps
-  ansible.builtin.pause:
-    seconds: "{{ trilio_kubernetes_delay_seconds | default(300) }}"
-  when: trilio_kubernetes_delay_enabled | default(false) | bool
-  tags: ['delay']

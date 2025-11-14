@@ -1,0 +1,32 @@
+# code: language=ansible
+# Restore from snapshot for Trilio with external auth
+
+- name: Set restore name for snapshot
+  ansible.builtin.set_fact:
+    trilio_kubernetes_restore_name: "{{ trilio_kubernetes_snapshot_name }}-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}"
+
+- name: Configure the restore from snapshot
+  ansible.builtin.template:
+    src: templates/restore-snapshot.yaml.j2
+    dest: /tmp/{{ trilio_kubernetes_restore_name }}-restore.yaml
+    mode: "0600"
+
+- name: Execute the restore from snapshot
+  kubernetes.core.k8s:
+    kind: Restore
+    state: present
+    namespace: "{{ trilio_kubernetes_restore_namespace }}"
+    src: "/tmp/{{ trilio_kubernetes_restore_name }}-restore.yaml"
+    validate_certs: false
+  register: trilio_kubernetes_restore
+
+- name: Wait for restore from snapshot to complete
+  kubernetes.core.k8s_info:
+    kind: Restore
+    namespace: "{{ trilio_kubernetes_restore_namespace }}"
+    name: "{{ trilio_kubernetes_restore_name }}"
+    validate_certs: false
+  register: trilio_kubernetes_restore_completed
+  retries: 10
+  delay: 60
+  until: trilio_kubernetes_restore_completed.resources is defined and trilio_kubernetes_restore_completed.resources | length > 0 and trilio_kubernetes_restore_completed.resources[0].status.status == 'Completed'

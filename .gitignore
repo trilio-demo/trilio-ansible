@@ -48,3 +48,7 @@ password_file
 overrides/
 .vscode/
 get-pip.py
+
+# Local Claude Code session/context files (not for the shared repo, for now)
+CLAUDE.md
+docs/session-state.md

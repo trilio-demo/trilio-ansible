@@ -142,6 +142,9 @@ trilio_kubernetes_delay_seconds: 300  # 5 minutes
 # Continuous Restore
 trilio_kubernetes_cr_backupplan: "{{ trilio_kubernetes_backupplan_name }}"
 trilio_kubernetes_event_target: "{{ trilio_kubernetes_target_name }}"
+# When true, the CR restore applies a transformComponents jsonPatch that brings the
+# restored KubeVirt VM up in a stopped state (spec.running: false) instead of running.
+trilio_kubernetes_stop_vm_transform: false
 
 # Used for migration/DR smoketest
 trilio_kubernetes_migrate: true
